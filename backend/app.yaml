@@ -1,0 +1,12 @@
+# app.yaml
+runtime: nodejs20
+
+instance_class: F1
+automatic_scaling:
+  min_instances: 1
+
+# Correctly formatted environment variables
+env_variables:
+  GOOGLE_MAPS_API_KEY: "AIzaSyDXMAJZyaokGu9VpSKIEqmtT0tIDCNF8M4"
+  OPENWEATHER_API_KEY: "cfe7e20fe0490c79c2edc40c2fcbe6a4"
+  CLOUD_RUN_URL: "https://prediction-server-478009486934.us-central1.run.app/predict"

@@ -316,7 +316,7 @@ export default function App() {
     setIsLoading(true);
     setPrediction(null);
     try {
-      const response = await axios.post("http://localhost:5001/api/predict", {
+      const response = await axios.post("https://gcp-learning-464207.el.r.appspot.com/api/predict", {
         userLat: userLocation.lat,
         userLon: userLocation.lng,
         restaurantName: selectedRestaurant,
