@@ -24,6 +24,118 @@ import {
   HelpCircle,
   GitMerge,
 } from "lucide-react";
+import { driver } from "driver.js";
+import "driver.js/dist/driver.css";
+
+
+const driverObj = driver({
+  popoverClass: 'driverjs-theme',
+  showProgress: true,
+  showButtons: ["next", "previous", "close"],
+  steps: [
+    {
+      element: "header",
+      popover: {
+        title: "Welcome to ETA Predict! 🚀",
+        description:
+          "This is your navigation menu. Use it to explore different sections of the app including the predictor, usage guide, and about page.",
+        side: "bottom",
+        align: "center",
+  
+      },
+    },
+    {
+      element: "#restaurant",
+      popover: {
+        title: "Choose Your Restaurant 🍕",
+        description:
+          "Select from our available restaurants in Bangalore. Each restaurant has a different location which affects delivery time.",
+        side: "right",
+        align: "start",
+      },
+    },
+    {
+      element: "#prepTime",
+      popover: {
+        title: "Set Food Preparation Time ⏱️",
+        description:
+          "Use this slider to estimate how long the restaurant will take to prepare your food. This affects the total delivery time prediction.",
+        side: "right",
+        align: "center",
+      },
+    },
+    {
+      element: ".leaflet-container",
+      popover: {
+        title: "Interactive Delivery Map 🗺️",
+        description:
+          "This map shows restaurant locations and where you can set your delivery address. Click anywhere on the map to set your location, or use the 'Get My Location' button.",
+        side: "left",
+        align: "center",
+      },
+    },
+    {
+      element: "button:has(.lucide-locate-fixed)",
+      popover: {
+        title: "Auto-Location Feature 📍",
+        description:
+          "Click this button to automatically detect your current location using GPS. This makes it easy to set your delivery address.",
+        side: "bottom",
+        align: "center",
+      },
+    },
+    {
+      element: "button:has(.lucide-clock)",
+      popover: {
+        title: "Get Your Prediction ⚡",
+        description:
+          "Once you've set your location and configured your order, click this button to get an AI-powered delivery time prediction based on real-time data.",
+        side: "top",
+        align: "center",
+      },
+    },
+    {
+      popover: {
+        title: "How It Works 🤖",
+        description:
+          "Our system analyzes multiple factors: distance to restaurant, traffic conditions, weather, courier availability, and food prep time to give you accurate delivery estimates.",
+        side: "top",
+        align: "center",
+      },
+    },
+    {
+      element: "button[onclick*='usage']",
+      popover: {
+        title: "Need Help? 💡",
+        description:
+          "Click on 'How to Use' in the navigation to get detailed instructions on using the predictor effectively.",
+        side: "bottom",
+        align: "center",
+      },
+    },
+    {
+      element: "button[onclick*='about']",
+      popover: {
+        title: "Learn More 📚",
+        description:
+          "Visit the 'About' section to understand the technology stack and features behind this prediction system.",
+        side: "bottom",
+        align: "center",
+      },
+    },
+    {
+      popover: {
+        title: "Ready to Start! 🎉",
+        description:
+          "You're all set! Try selecting a restaurant, setting your location on the map, and getting your first delivery time prediction. Enjoy exploring!",
+        side: "top",
+        align: "center",
+      },
+    },
+  ],
+});
+
+driverObj.drive();
 
 // --- LEAFLET ICON FIX ---
 delete L.Icon.Default.prototype._getIconUrl;
@@ -35,18 +147,21 @@ L.Icon.Default.mergeOptions({
 });
 
 // --- CUSTOM ICONS ---
+
 const restaurantIcon = new L.Icon({
-  iconUrl: "https://cdn-icons-png.flaticon.com/512/3448/3448609.png",
-  iconSize: [35, 35],
-  iconAnchor: [17, 35],
-  popupAnchor: [0, -35],
+iconUrl: "https://cdn-icons-png.flaticon.com/512/3448/3448609.png",
+iconSize: [35, 35],
+iconAnchor: [17, 35],
+popupAnchor: [0, -35],
+className: 'leaflet-restaurant-icon'
 });
 
 const userIcon = new L.Icon({
-  iconUrl: "https://cdn-icons-png.flaticon.com/512/684/684809.png",
-  iconSize: [35, 35],
-  iconAnchor: [17, 35],
-  popupAnchor: [0, -35],
+iconUrl: "https://cdn-icons-png.flaticon.com/512/684/684809.png",
+iconSize: [35, 35],
+iconAnchor: [17, 35],
+popupAnchor: [0, -35],
+className: 'leaflet-user-icon'
 });
 
 // --- DATA ---
@@ -76,7 +191,7 @@ const Header = ({ currentPage, setCurrentPage }) => {
               <Bike className="h-8 w-8 text-white" />
             </div>
             <span className="ml-3 text-2xl font-bold text-gray-900">
-              DeliveryPredict
+              ETA Predict
             </span>
           </div>
           <div className="hidden md:flex items-center space-x-2">
