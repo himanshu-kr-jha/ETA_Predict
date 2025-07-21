@@ -29,7 +29,7 @@ import "driver.js/dist/driver.css";
 
 
 const driverObj = driver({
-  popoverClass: 'driverjs-theme',
+  popoverClass: "driverjs-theme",
   showProgress: true,
   showButtons: ["next", "previous", "close"],
   steps: [
@@ -41,7 +41,15 @@ const driverObj = driver({
           "This is your navigation menu. Use it to explore different sections of the app including the predictor, usage guide, and about page.",
         side: "bottom",
         align: "center",
-  
+      },
+    },
+    {
+      popover: {
+        title: "IMPORTANT!",
+        description:
+          "Our predictions are currently centered on Bangalore. To check them out, please select a location nearby. We're working hard to add more restaurants soon!",
+        side: "top",
+        align: "center",
       },
     },
     {
@@ -201,8 +209,8 @@ const Header = ({ currentPage, setCurrentPage }) => {
                 onClick={() => setCurrentPage(link.id)}
                 className={`px-6 py-3 rounded-full text-sm font-semibold transition-all duration-300 transform hover:scale-105 ${
                   currentPage === link.id
-                    ? "bg-orange-500 text-orange shadow-lg"
-                    : "text-orange-700 hover:bg-orange-100 hover:text-orange-600"
+                    ? "bg-orange-500 text-black shadow-lg"
+                    : "bg-white text-orange-500 border border-orange-500 hover:bg-orange-500"
                 }`}
               >
                 {link.name}
@@ -312,10 +320,10 @@ const Footer = ({ setCurrentPage }) => (
             <div className="bg-orange-500 p-2 rounded-full">
               <Bike className="h-6 w-6 text-white" />
             </div>
-            <h3 className="text-xl font-bold ml-2">DeliveryPredict</h3>
+            <h3 className="text-xl font-bold ml-2">ETA Predict</h3>
           </div>
           <p className="text-gray-400">
-            Smarter delivery estimates using advanced algorithms and real-time
+            Smarter delivery estimates using machine learning algorithms and real-time
             data.
           </p>
         </div>
@@ -327,7 +335,7 @@ const Footer = ({ setCurrentPage }) => (
             <li>
               <button
                 onClick={() => setCurrentPage("home")}
-                className="text-red-300 hover:text-orange-400 transition-colors duration-200"
+                className="text-orange-300 hover:text-orange-400 transition-colors duration-200"
               >
                 Predictor
               </button>
@@ -335,7 +343,7 @@ const Footer = ({ setCurrentPage }) => (
             <li>
               <button
                 onClick={() => setCurrentPage("usage")}
-                className="text-red-300 hover:text-orange-400 transition-colors duration-200"
+                className="text-orange-300 hover:text-orange-400 transition-colors duration-200"
               >
                 How to Use
               </button>
@@ -343,7 +351,7 @@ const Footer = ({ setCurrentPage }) => (
             <li>
               <button
                 onClick={() => setCurrentPage("about")}
-                className="text-red-300 hover:text-orange-400 transition-colors duration-200"
+                className="text-orange-300 hover:text-orange-400 transition-colors duration-200"
               >
                 About
               </button>
