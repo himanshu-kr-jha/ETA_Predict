@@ -175,7 +175,8 @@ const restaurants = {
 
 // --- PAGE COMPONENTS ---
 
-const Header = ({ currentPage, setCurrentPage }) => {
+const Header = ({ currentPage, setCurrentPage, credits }) => {
+  // Add 'credits' prop
   const navLinks = [
     { name: "Predictor", id: "home" },
     { name: "How to Use", id: "usage" },
@@ -194,20 +195,29 @@ const Header = ({ currentPage, setCurrentPage }) => {
               ETA Predict
             </span>
           </div>
-          <div className="hidden md:flex items-center space-x-2">
-            {navLinks.map((link) => (
-              <button
-                key={link.id}
-                onClick={() => setCurrentPage(link.id)}
-                className={`px-6 py-3 rounded-full text-sm font-semibold transition-all duration-300 transform hover:scale-105 ${
-                  currentPage === link.id
-                    ? "bg-orange-500 text-orange shadow-lg"
-                    : "text-orange-700 hover:bg-orange-100 hover:text-orange-600"
-                }`}
-              >
-                {link.name}
-              </button>
-            ))}
+          <div className="flex items-center space-x-4">
+            {" "}
+            {/* Changed to flex and added space-x-4 */}
+            <div className="hidden md:flex items-center space-x-2">
+              {navLinks.map((link) => (
+                <button
+                  key={link.id}
+                  onClick={() => setCurrentPage(link.id)}
+                  className={`px-6 py-3 rounded-full text-sm font-semibold transition-all duration-300 transform hover:scale-105 ${
+                    currentPage === link.id
+                      ? "bg-orange-500 text-white shadow-lg" // text-white for better contrast
+                      : "text-gray-700 hover:bg-orange-100 hover:text-orange-600"
+                  }`}
+                >
+                  {link.name}
+                </button>
+              ))}
+            </div>
+            {/* Credit Display */}
+            <div className="bg-orange-100 text-orange-700 text-sm font-bold px-4 py-2 rounded-full flex items-center shadow-inner">
+              <GitMerge size={16} className="mr-2" />
+              Credits: {credits}
+            </div>
           </div>
         </div>
       </nav>
@@ -302,6 +312,38 @@ const AboutSection = () => (
     </div>
   </div>
 );
+// --- CREDIT POPUP COMPONENT ---
+const CreditPopup = ({ show, onClose }) => {
+  if (!show) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-9999 animate-in fade-in">
+      <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full m-4 text-center transform transition-all animate-in zoom-in-95">
+        <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-orange-100 mb-4">
+          <GitMerge className="h-8 w-8 text-orange-500" />
+        </div>
+        <h3 className="text-2xl font-bold text-gray-900 mb-2">You're Out of Free Credits!</h3>
+        <p className="text-gray-600 mb-6">
+          You've used your 3 free predictions for today. You can get more tomorrow or subscribe for unlimited access.
+        </p>
+        <div className="flex flex-col sm:flex-row gap-3">
+          <button
+            onClick={() => alert("Subscription feature coming soon!")}
+            className="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold py-3 px-6 rounded-xl hover:from-orange-600 hover:to-orange-700 transition-all duration-300 shadow-lg transform hover:scale-105"
+          >
+            Subscribe Now
+          </button>
+          <button
+            onClick={onClose}
+            className="w-full bg-gray-200 text-gray-800 font-bold py-3 px-6 rounded-xl hover:bg-gray-300 transition-all duration-300"
+          >
+            Wait Until Tomorrow
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const Footer = ({ setCurrentPage }) => (
   <footer className="bg-gray-900 text-white border-t-4 border-orange-500 mt-12">
@@ -393,6 +435,7 @@ function LocationMarker({ userLocation, setUserLocation, mapRef }) {
 }
 
 // --- MAIN APP COMPONENT ---
+// --- MAIN APP COMPONENT (Corrected) ---
 export default function App() {
   const [currentPage, setCurrentPage] = useState("home");
   const [userLocation, setUserLocation] = useState(null);
@@ -405,6 +448,27 @@ export default function App() {
   const [isLocating, setIsLocating] = useState(false);
   const [error, setError] = useState("");
   const mapRef = React.useRef(null);
+  
+  // --- NEW STATE FOR CREDIT SYSTEM ---
+  const [credits, setCredits] = useState(3);
+  const [showCreditPopup, setShowCreditPopup] = useState(false);
+
+  // --- EFFECT TO MANAGE CREDITS DAILY ---
+  useEffect(() => {
+    const today = new Date().toISOString().split("T")[0]; // Get date in YYYY-MM-DD format
+    const lastUsageDate = localStorage.getItem("etaPredictLastUsageDate");
+
+    if (lastUsageDate !== today) {
+      // It's a new day, reset credits
+      localStorage.setItem("etaPredictCredits", "3");
+      localStorage.setItem("etaPredictLastUsageDate", today);
+      setCredits(3);
+    } else {
+      // It's the same day, load credits from storage
+      const savedCredits = localStorage.getItem("etaPredictCredits");
+      setCredits(savedCredits ? Number(savedCredits) : 3);
+    }
+  }, []); // Empty dependency array ensures this runs only once on mount
 
   const handleGetLocation = () => {
     setIsLocating(true);
@@ -423,6 +487,12 @@ export default function App() {
   };
 
   const handlePredict = async () => {
+    // --- CREDIT CHECK ---
+    if (credits <= 0) {
+      setShowCreditPopup(true); // This will now run on click
+      return; 
+    }
+
     if (!userLocation) {
       setError("Please select a delivery location on the map.");
       return;
@@ -438,6 +508,12 @@ export default function App() {
         prepTime: Number(prepTime),
       });
       setPrediction(response.data);
+
+      // --- DEDUCT AND SAVE CREDIT ON SUCCESS ---
+      const newCredits = credits - 1;
+      setCredits(newCredits);
+      localStorage.setItem("etaPredictCredits", newCredits.toString());
+
     } catch (err) {
       setError(
         err.response?.data?.error ||
@@ -525,8 +601,9 @@ export default function App() {
                   </div>
                   <button
                     onClick={handlePredict}
+                    // --- CORRECTED: Only disable while loading or locating ---
                     disabled={isLoading || isLocating}
-                    className="w-full mt-8 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold py-4 px-6 rounded-xl hover:from-orange-600 hover:to-orange-700 transition-all duration-300 disabled:from-gray-400 disabled:to-gray-500 flex items-center justify-center shadow-lg transform hover:scale-105 disabled:scale-100"
+                    className="w-full mt-8 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold py-4 px-6 rounded-xl hover:from-orange-600 hover:to-orange-700 transition-all duration-300 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed flex items-center justify-center shadow-lg transform hover:scale-105 disabled:scale-100"
                   >
                     {isLoading ? (
                       <>
@@ -536,7 +613,8 @@ export default function App() {
                     ) : (
                       <>
                         <Clock className="mr-2" size={20} />
-                        Predict Delivery Time
+                        {/* The button text will still reflect the state, but it will be clickable */}
+                        {credits > 0 ? 'Predict Delivery Time' : 'No Credits Left'}
                       </>
                     )}
                   </button>
@@ -547,8 +625,8 @@ export default function App() {
                   )}
                 </div>
               </div>
-
-              {/* Right Column: Map */}
+              
+              {/* ... The rest of the `renderContent` function remains the same ... */}
               <div className="lg:col-span-4 bg-white p-6 rounded-2xl shadow-xl border border-gray-100 transform transition-all duration-300 hover:shadow-2xl">
                 <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-6 gap-4">
                   <h2 className="text-xl font-bold flex items-center text-gray-900">
@@ -601,7 +679,6 @@ export default function App() {
 
             {/* Prediction/Loading Section */}
             <div className="mt-8">
-              {/* Loading Card */}
               {isLoading && (
                 <div className="bg-white p-6 rounded-2xl shadow-xl border border-gray-100 text-center animate-pulse">
                   <div className="h-8 bg-gradient-to-r from-orange-200 to-orange-300 rounded w-1/4 mx-auto mb-4"></div>
@@ -610,7 +687,6 @@ export default function App() {
                 </div>
               )}
 
-              {/* Prediction Card */}
               {prediction && !isLoading && (
                 <div className="bg-white p-6 rounded-2xl shadow-xl border border-gray-100 transform transition-all duration-500 animate-in slide-in-from-bottom">
                   <h2 className="text-xl font-bold mb-6 text-center text-gray-900">
@@ -682,7 +758,8 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 font-sans text-gray-800 flex flex-col">
-      <Header currentPage={currentPage} setCurrentPage={setCurrentPage} />
+      <CreditPopup show={showCreditPopup} onClose={() => setShowCreditPopup(false)} />
+      <Header currentPage={currentPage} setCurrentPage={setCurrentPage} credits={credits} />
       <main className="container mx-auto p-4 sm:p-6 lg:p-8 flex-grow">
         {renderContent()}
       </main>
